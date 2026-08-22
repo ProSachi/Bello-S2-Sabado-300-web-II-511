@@ -1,0 +1,25 @@
+.panel {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    max-width: 350px;
+}
+
+.alertaPeligro {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.etiquetaPlan {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
