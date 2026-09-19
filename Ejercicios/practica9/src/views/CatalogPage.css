@@ -1,0 +1,19 @@
+.catalog-header {
+  margin-bottom: 1.3rem;
+}
+
+.catalog-header h1 {
+  margin: 0 0 0.4rem;
+  color: #0f172a;
+}
+
+.catalog-header p {
+  margin: 0;
+  color: #475569;
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}

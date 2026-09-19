@@ -1,0 +1,40 @@
+.contact-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: linear-gradient(140deg, #fbcfe8, #c4b5fd);
+}
+
+.contact-card {
+  width: min(560px, 100%);
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.2);
+  padding: 1.2rem;
+}
+
+.contact-card h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.contact-info {
+  margin: 1rem 0;
+}
+
+.contact-info p {
+  margin: 0.45rem 0;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.contact-actions a {
+  background-color: #0f172a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+}
