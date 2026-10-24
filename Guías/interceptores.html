@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Red: Interceptores Axios y JWT</title>
+    <style>
+        :root {
+            --bg-base: #1e1e1e;
+            --panel-bg: #252526;
+            --text-main: #d4d4d4;
+            --accent-blue: #007acc;
+            --accent-green: #2ea043;
+            --accent-red: #f85149;
+            --border-color: #404040;
+        }
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            margin: 0;
+        }
+        .architecture-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .node-box {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 280px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .node-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #569cd6;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .network-cable {
+            position: absolute;
+            top: 50%;
+            left: 150px;
+            right: 150px;
+            height: 4px;
+            background-color: var(--border-color);
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        .packet {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            opacity: 0;
+            transition: left 1.5s linear, background-color 0.3s, opacity 0.2s;
+            z-index: 3;
+        }
+        .data-display {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: left;
+            font-size: 0.85rem;
+            margin-top: 15px;
+            min-height: 80px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+        }
+        button:hover { background-color: #005999; }
+        button.danger { background-color: var(--accent-red); }
+        button.danger:hover { background-color: #b33b35; }
+        
+        .console-terminal {
+            width: 100%;
+            max-width: 900px;
+            background: #000;
+            color: #4af626;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .log-error { color: var(--accent-red); }
+        .log-warn { color: #d7ba7d; }
+        .log-success { color: var(--accent-green); }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #fff;">Motor de Red: Interceptores Axios</h2>
+
+    <div class="controls">
+        <button class="danger" onclick="ejecutarPeticion(false)">1. Petición sin Interceptor (Fetch Nativo)</button>
+        <button onclick="ejecutarPeticion(true)">2. Petición con Interceptor Axios (Inyección JWT)</button>
+    </div>
+
+    <div class="architecture-container">
+        <!-- FRONTEND NODE -->
+        <div class="node-box" id="frontend-node">
+            <div class="node-header">Frontend (React)</div>
+            <div>Petición: <span style="color:#ce9178;">GET /api/reportes</span></div>
+            <div class="data-display" id="storage-display">
+                <span style="color: #858585;">// sessionStorage</span><br>
+                token: "eyJhbGciOiJIUzI1Ni..."
+            </div>
+            <div class="data-display" id="interceptor-display" style="border-color: #d7ba7d; display: none;">
+                <span style="color: #d7ba7d;">[Interceptor Axios]</span><br>
+                Inyectando cabecera...
+            </div>
+        </div>
+
+        <!-- NETWORK LINE & PACKET -->
+        <div class="network-cable">
+            <div class="packet" id="data-packet"></div>
+        </div>
+
+        <!-- BACKEND NODE -->
+        <div class="node-box" id="backend-node">
+            <div class="node-header">Backend (Servidor)</div>
+            <div class="data-display" id="server-display">
+                <span style="color: #858585;">// Firewall / Middleware</span><br>
+                Esperando petición...
+            </div>
+        </div>
+    </div>
+
+    <div class="console-terminal" id="terminal">
+        > Sistema inicializado. Monitoreo de red activo...<br>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const packet = document.getElementById('data-packet');
+        const interceptorDisplay = document.getElementById('interceptor-display');
+        const serverDisplay = document.getElementById('server-display');
+        
+        const jwtMock = "Bearer eyJhbGciOiJIUzI1Ni...";
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            let cls = '';
+            if(type === 'error') cls = 'log-error';
+            if(type === 'warn') cls = 'log-warn';
+            if(type === 'success') cls = 'log-success';
+            
+            terminal.innerHTML += `<br><span class="${cls}">[${time}] ${msg}</span>`;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function ejecutarPeticion(usarInterceptor) {
+            // Reset UI
+            packet.style.transition = 'none';
+            packet.style.left = '0%';
+            packet.style.opacity = '1';
+            packet.style.backgroundColor = '#fff';
+            serverDisplay.innerHTML = `<span style="color: #858585;">// Firewall / Middleware</span><br>Evaluando tráfico entrante...`;
+            interceptorDisplay.style.display = 'none';
+            
+            log("-----------------------------------");
+            log(`Iniciando petición a /api/reportes...`);
+
+            setTimeout(() => {
+                let headers = {};
+                
+                if (usarInterceptor) {
+                    interceptorDisplay.style.display = 'block';
+                    log("Interceptor disparado. Leyendo sessionStorage...", "warn");
+                    headers['Authorization'] = jwtMock;
+                    packet.style.backgroundColor = 'var(--accent-green)';
+                    log(`Cabecera inyectada: Authorization: ${jwtMock}`, "warn");
+                } else {
+                    packet.style.backgroundColor = 'var(--accent-red)';
+                    log("Petición en crudo. El interceptor está inactivo.", "warn");
+                }
+
+                // Animación de viaje por la red
+                packet.style.transition = 'left 1.5s linear, background-color 0.3s';
+                packet.style.left = '100%';
+                log("Paquete transmitido a través de la red...");
+
+                // Simulación de respuesta del backend tras 1.5s
+                setTimeout(() => {
+                    packet.style.opacity = '0';
+                    
+                    if (headers['Authorization']) {
+                        serverDisplay.innerHTML = `<span style="color: var(--accent-green);">200 OK</span><br>Firma validada. Datos entregados.`;
+                        log("Backend validó la firma criptográfica (JWT).", "success");
+                        log("HTTP 200 OK: Respuesta JSON recibida exitosamente en React.", "success");
+                    } else {
+                        serverDisplay.innerHTML = `<span style="color: var(--accent-red);">401 UNAUTHORIZED</span><br>Petición rechazada. Cabecera ausente.`;
+                        log("Fallo de seguridad: El Backend no encontró la cabecera Authorization.", "error");
+                        log("HTTP 401 Unauthorized: Axios arroja excepción. Ejecutando catch(error).", "error");
+                    }
+                }, 1500);
+
+            }, 500);
+        }
+    </script>
+</body>
+</html>
