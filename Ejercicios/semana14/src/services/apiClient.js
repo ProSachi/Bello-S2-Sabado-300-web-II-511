@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Se crea la instancia única
 export const apiClient = axios.create({
-  baseURL: 'https://6ada65787512f497b3ffe957.mockapi.io/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 8000
 });
 
