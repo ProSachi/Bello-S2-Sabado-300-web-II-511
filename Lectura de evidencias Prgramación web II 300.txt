@@ -3,7 +3,7 @@
 Este documento proporciona las instrucciones necesarias para interpretar y acceder a las evidencias construidas y entregadas por el docente a los estudiantes a medida que se avanzaba en cada una de las clases.
 
 Repositorio de evidencias
-https://github.com/ProSachi/Med2-empresarial-logica-Programacion-martes-viernes-9am-.git
+https://github.com/ProSachi/Bello-S2-Sabado-300-web-II-511.git
 
 
 Cómo acceder y revisar los repositorios de código (Git)
